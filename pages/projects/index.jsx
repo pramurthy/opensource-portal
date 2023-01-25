@@ -1,66 +1,72 @@
-
-import GithubService from "../../services/GithubService"
-import ProjectCard from "../../components/Project"
-import Breadcrumb from "../../components/Breadcrumb"
-import Layout from "../../components/Layout"
-import React, { useEffect } from "react"
+import GithubService from "../../services/GithubService";
+import ProjectCard from "../../components/Project";
+import Breadcrumb from "../../components/Breadcrumb";
+import Layout from "../../components/Layout";
+import Tabular from "../../components/Tabular";
+import React, { useEffect } from "react";
 export default function Project({ repos }) {
   const [projects, setProjects] = React.useState([]);
+  const [tabularView, setTabularView] = React.useState(false);
   React.useEffect(() => {
-    setProjects(repos)
-  }, [])
-  let tags = []
-  let langs = []
-  repos.map((i) => { langs.push(...i.languages); tags.push(...i.topics) })
-  let filteredLang = new Set()
-  let filteredTags = new Set()
-  langs.forEach((i) => !filteredLang.has(i) && filteredLang.add(i))
-  tags.forEach((i) => !filteredTags.has(i) && filteredTags.add(i))
-  tags = [...filteredTags]
-  const filterList = [...filteredLang]
+    setProjects(repos);
+  }, []);
+  let tags = [];
+  let langs = [];
+  repos.map((i) => {
+    langs.push(...i.languages);
+    tags.push(...i.topics);
+  });
+  let filteredLang = new Set();
+  let filteredTags = new Set();
+  langs.forEach((i) => !filteredLang.has(i) && filteredLang.add(i));
+  tags.forEach((i) => !filteredTags.has(i) && filteredTags.add(i));
+  tags = [...filteredTags];
+  const filterList = [...filteredLang];
   const [langCheck, setLangCheck] = React.useState([]);
-  const [tagCheck, setTagCheck] = React.useState([])
+  const [tagCheck, setTagCheck] = React.useState([]);
 
   useEffect(() => {
     const filter = () => {
       let filteredRepos = [];
       let result = [];
-      tagCheck.length ? tagCheck.map(i => {
-          filteredRepos.push(repos.filter((repo) => repo.topics.includes(i)))
-      }) : (filteredRepos = repos);
-      filteredRepos = [].concat(...filteredRepos)
+      tagCheck.length
+        ? tagCheck.map((i) => {
+            filteredRepos.push(repos.filter((repo) => repo.topics.includes(i)));
+          })
+        : (filteredRepos = repos);
+      filteredRepos = [].concat(...filteredRepos);
 
-      langCheck.length ? langCheck.map(i => {
-          result.push(filteredRepos.filter((repo) => repo.languages.includes(i)))
-      }) : (result = filteredRepos)
-      let list = new Set()
+      langCheck.length
+        ? langCheck.map((i) => {
+            result.push(
+              filteredRepos.filter((repo) => repo.languages.includes(i))
+            );
+          })
+        : (result = filteredRepos);
+      let list = new Set();
 
-      result = [].concat(...result)
-      result.forEach((i) => !list.has(i) && list.add(i))
-      setProjects([...list])
-    }
+      result = [].concat(...result);
+      result.forEach((i) => !list.has(i) && list.add(i));
+      setProjects([...list]);
+    };
     filter();
-  }, [langCheck, tagCheck])
+  }, [langCheck, tagCheck]);
 
   const handleChange = (e) => {
-
     const { value, checked, name } = e.target;
 
     console.log(`${value} is ${checked}`);
-    if (name === 'languages') {
+    if (name === "languages") {
       if (checked) {
         setLangCheck([...langCheck, value]);
-      }
-      else {
+      } else {
         setLangCheck(langCheck.filter((e) => e !== value));
       }
-    }
-    else if (name === 'tags') {
+    } else if (name === "tags") {
       if (checked) {
         setTagCheck([...tagCheck, value]);
-      }
-      else {
-        setTagCheck(tagCheck.filter((e)=> e !== value));
+      } else {
+        setTagCheck(tagCheck.filter((e) => e !== value));
       }
     }
   };
@@ -74,78 +80,88 @@ export default function Project({ repos }) {
         <div className="uk-margin">
           <form className="uk-search uk-search-default">
             <span className="uk-search-icon-flip" uk-search-icon="true"></span>
-            <input className="uk-search-input" type="search" placeholder="Search for project" />
+            <input
+              className="uk-search-input"
+              type="search"
+              placeholder="Search for project"
+            />
           </form>
         </div>
       </div>
-
-      <ul className="uk-subnav uk-subnav-pill uk-text-bold">
-      <li>
-          <button type="button" className="uk-text-bold">All  Tags <span uk-icon="chevron-down"></span></button>
-          <div uk-dropdown="pos: bottom-left; mode: click">
-            <form className="uk-nav uk-dropdown-nav uk-text-bold">
-              <div className="uk-margin-small">
-                {/* <input
+      <div style={{ display: "flex" }}>
+        <ul className="uk-subnav uk-subnav-pill uk-text-bold">
+          <li>
+            <button type="button" className="uk-text-bold">
+              All Tags <span uk-icon="chevron-down"></span>
+            </button>
+            <div uk-dropdown="pos: bottom-left; mode: click">
+              <form className="uk-nav uk-dropdown-nav uk-text-bold">
+                <div className="uk-margin-small">
+                  {/* <input
                   className="uk-checkbox uk-margin-small-right"
                   type="checkbox"
                   name="tags"
                   value="All"
                   onChange={handleChange}
                 /> */}
-                <label>
-                  All Tags
-                </label>
-              </div>
-              {tags.map(lang => <div className="uk-margin-small">
-                <input
-                  className="uk-checkbox uk-margin-small-right"
-                  type="checkbox"
-                  name="tags"
-                  value={lang}
-                  onChange={handleChange}
-                />
-                <label>
-                  {lang}
-                </label>
-              </div>)}
-
-            </form>
-          </div>
-        </li>
-        <li>
-          <button type="button" className="uk-text-bold">All  Languages <span uk-icon="chevron-down"></span></button>
-          <div uk-dropdown="pos: bottom-left; mode: click">
-            <form className="uk-nav uk-dropdown-nav uk-text-bold">
-              <div className="uk-margin-small">
-                {/* <input
+                  <label>All Tags</label>
+                </div>
+                {tags.map((lang) => (
+                  <div className="uk-margin-small">
+                    <input
+                      className="uk-checkbox uk-margin-small-right"
+                      type="checkbox"
+                      name="tags"
+                      value={lang}
+                      onChange={handleChange}
+                    />
+                    <label>{lang}</label>
+                  </div>
+                ))}
+              </form>
+            </div>
+          </li>
+          <li>
+            <button type="button" className="uk-text-bold">
+              All Languages <span uk-icon="chevron-down"></span>
+            </button>
+            <div uk-dropdown="pos: bottom-left; mode: click">
+              <form className="uk-nav uk-dropdown-nav uk-text-bold">
+                <div className="uk-margin-small">
+                  {/* <input
                   className="uk-checkbox uk-margin-small-right"
                   type="checkbox"
                   name="languages"
                   value="All"
                   onChange={handleChange}
                 /> */}
-                <label>
-                  All Languages
-                </label>
-              </div>
-              {filterList.map(lang => <div className="uk-margin-small">
-                <input
-                  className="uk-checkbox uk-margin-small-right"
-                  type="checkbox"
-                  name="languages"
-                  value={lang}
-                  onChange={handleChange}
-                />
-                <label>
-                  {lang}
-                </label>
-              </div>)}
-            </form>
-          </div>
-        </li>
-      </ul>
+                  <label>All Languages</label>
+                </div>
+                {filterList.map((lang) => (
+                  <div className="uk-margin-small">
+                    <input
+                      className="uk-checkbox uk-margin-small-right"
+                      type="checkbox"
+                      name="languages"
+                      value={lang}
+                      onChange={handleChange}
+                    />
+                    <label>{lang}</label>
+                  </div>
+                ))}
+              </form>
+            </div>
+          </li>
+        </ul>
+        <button
+          className="tabView"
+          type="button"
+          uk-icon={tabularView ? "icon: list" : "icon:thumbnails"}
+          onClick={() => setTabularView(!tabularView)}
+        ></button>
+      </div>
+
       <div data-uk-filter="target: .js-filter" className="uk-margin-small-top">
-
         {/* <ul className="uk-subnav uk-subnav-pill uk-text-bold">
            <li className="uk-active " key='All' data-uk-filter-control=""><a href="#">All</a></li>
           {filterList.map(lang => <li key={lang} className="uk-margin-small" data-uk-filter-control={`[data-lang*='${lang}']`}><a href="#">{lang}</a></li>)} 
@@ -183,30 +199,43 @@ export default function Project({ repos }) {
             </div>
           </li>
         </ul> */}
-       
-        <div className="js-filter uk-grid-medium uk-child-width-1-3@l uk-child-width-1-3@m uk-child-width-1-1@s uk-text-left " data-uk-grid="masonry:true" uk-height-match="target: > div > div > .uk-card; row: true">
-          {
-            projects?.map((project) => (
-              <div key={project.id} data-lang={project.languages.join(' ') ?? ''} data-tag={project.topics.join(' ') ?? ''}>
+        {tabularView ? (
+          <div
+            className="js-filter uk-grid-medium uk-child-width-1-3@l uk-child-width-1-3@m uk-child-width-1-1@s uk-text-left "
+            data-uk-grid="masonry:true"
+            uk-height-match="target: > div > div > .uk-card; row: true"
+          >
+            {projects?.map((project) => (
+              <div
+                key={project.id}
+                data-lang={project.languages.join(" ") ?? ""}
+                data-tag={project.topics.join(" ") ?? ""}
+              >
                 <ProjectCard data={project} key={project.id}></ProjectCard>
               </div>
-            ))
-          }
-        </div>
+            ))}
+          </div>
+        ) : (
+          <Tabular data={projects} key={projects.id}></Tabular>
+        )}
       </div>
     </>
-  )
+  );
 }
 
 Project.getLayout = function getLayout(project) {
   return (
     <Layout>
-      <Breadcrumb link='/projects' heading='Project' child={project}></Breadcrumb>
+      <Breadcrumb
+        link="/projects"
+        heading="Project"
+        child={project}
+      ></Breadcrumb>
     </Layout>
-  )
-}
+  );
+};
 
 export async function getStaticProps() {
-  const repos = await GithubService.fetchProjects(true)
-  return { props: { repos } }
+  const repos = await GithubService.fetchProjects(true);
+  return { props: { repos } };
 }
